@@ -1,6 +1,6 @@
-import SearchBar from './components/SearchBar';
-import Loader from './components/Loader';
-import CardList from './components/CardList';
+import SearchBar from './components/SearchBar.tsx';
+import Loader from './components/Loader.tsx';
+import CardList from './components/CardList.tsx';
 import { Component } from 'react';
 import type { PokemonDetailsResponse } from './models/PokemonDetailsResponse.ts';
 import type { PokemonListResponse } from './models/PokemonListResponse.ts';
