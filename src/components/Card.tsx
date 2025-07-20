@@ -1,6 +1,6 @@
 import { Component } from 'react';
 
-interface CardProps {
+export interface CardProps {
   name: string;
   description: string;
 }

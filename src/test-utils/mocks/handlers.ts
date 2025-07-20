@@ -8,32 +8,46 @@ export const handlers = [
     return HttpResponse.json(
       {
         count: 1,
-        results: [
-          { name: 'bulbasaur', url: 'https://pokeapi.co/api/v2/pokemon/1' },
-        ],
+        results: [{ name: 'bulbasaur', url: 'testurl1' }],
         params: { limit, offset },
       },
       { status: 200 }
     );
   }),
-  http.get('https://pokeapi.co/api/v2/pokemon/1', () =>
+  http.get('testurl1', () =>
     HttpResponse.json(
       {
-        count: 1,
-        results: [
+        name: 'bulbasaur',
+        abilities: [
           {
-            abilities: [
-              {
-                ability: {
-                  name: 'overgrow',
-                },
-              },
-              {
-                ability: {
-                  name: 'chlorophyll',
-                },
-              },
-            ],
+            ability: {
+              name: 'overgrow',
+            },
+          },
+          {
+            ability: {
+              name: 'chlorophyll',
+            },
+          },
+        ],
+      },
+      { status: 200 }
+    )
+  ),
+  http.get('https://pokeapi.co/api/v2/pokemon/test123', () =>
+    HttpResponse.json(
+      {
+        name: 'bulbasaur',
+        abilities: [
+          {
+            ability: {
+              name: 'overgrow',
+            },
+          },
+          {
+            ability: {
+              name: 'chlorophyll',
+            },
           },
         ],
       },
