@@ -2,7 +2,7 @@
   "name": "pokemon-app",
   "private": true,
   "version": "0.0.0",
-  "homepage": "https://volohavlad.github.io/pokemon-app",
+  "homepage": "https://volohavlad.github.io/class-component-task",
   "type": "module",
   "scripts": {
     "dev": "vite",
