@@ -1,0 +1,2 @@
+npx husky-init && npm install
+npx husky add .husky/pre-push "npm test"
