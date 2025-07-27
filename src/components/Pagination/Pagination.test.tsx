@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent } from '@testing-library/react';
-import Pagination from './Pagination';
+import { Pagination } from './Pagination.tsx';
 
 describe('Pagination', () => {
   it('displays the current page and the total number of pages', () => {
