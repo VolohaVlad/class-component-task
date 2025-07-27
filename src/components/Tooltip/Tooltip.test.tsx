@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent } from '@testing-library/react';
-import Tooltip from './Tooltip';
+import { Tooltip } from './Tooltip';
 
 describe('Tooltip', () => {
   it('renders children', () => {
