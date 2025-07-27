@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent } from '@testing-library/react';
-import SearchBar from './SearchBar';
+import { SearchBar } from './SearchBar.tsx';
 
 describe('SearchBar', () => {
   it('renders input with given value', () => {
