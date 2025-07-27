@@ -4,7 +4,7 @@ import { SearchPage } from './pages/SearchPage';
 import { NotFoundPage } from './pages/NotFound';
 
 export const App = () => (
-  <BrowserRouter>
+  <BrowserRouter basename="class-component-task">
     <Routes>
       <Route index element={<SearchPage />} />
       <Route path="/about" element={<AboutPage />} />
