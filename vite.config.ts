@@ -3,6 +3,6 @@ import react from '@vitejs/plugin-react';
 import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig({
-  base: 'https://volohavlad.github.io/class-component-task/',
+  base: '/class-component-task/',
   plugins: [react(), tailwindcss()],
 });
