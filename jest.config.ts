@@ -6,7 +6,7 @@ export default {
   },
   setupFilesAfterEnv: ['<rootDir>/src/test-utils/setupTests.ts'],
   testPathIgnorePatterns: ['<rootDir>/node_modules', '<rootDir>/dist'],
-  collectCoverage: true,
+  collectCoverage: false,
   collectCoverageFrom: [
     'src/**/*.{ts,tsx}',
     '!src/**/*.d.ts',
