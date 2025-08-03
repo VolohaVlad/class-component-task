@@ -69,7 +69,7 @@ describe('PokemonService', () => {
       mockedGet.mockResolvedValueOnce({
         data: {
           name: 'ditto',
-          sprites: {}, // missing sprites.other etc
+          sprites: {},
         },
       } as never);
 

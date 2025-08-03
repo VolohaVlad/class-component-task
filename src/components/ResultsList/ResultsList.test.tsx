@@ -1,6 +1,6 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen } from '@testing-library/react';
-import { ResultsList } from './ResultsList.tsx';
+import { ResultsList } from './ResultsList';
 import type { PokemonListItem } from '../../models/PokemonListItem';
 
 describe('ResultsList', () => {
@@ -60,10 +60,8 @@ describe('ResultsList', () => {
       />
     );
     expect(screen.queryByText(/no results/i)).not.toBeInTheDocument();
-    // оба элемента есть
     expect(screen.getByText(/Pikachu/i)).toBeInTheDocument();
     expect(screen.getByText(/Bulbasaur/i)).toBeInTheDocument();
-    // обе картинки тоже
     const imgs = screen.getAllByRole('img');
     expect(imgs).toHaveLength(2);
     expect(imgs[0]).toHaveAttribute(
@@ -85,7 +83,7 @@ describe('ResultsList', () => {
         onSelect={onSelect}
       />
     );
-    const pikachuItem = screen.getAllByTestId('result-item')[0];
+    const pikachuItem = screen.getAllByTestId('result-item-select')[0];
     fireEvent.click(pikachuItem);
     expect(onSelect).toHaveBeenCalledWith(pokemons[0]);
   });
