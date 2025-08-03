@@ -1,10 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  useNavigate,
-  useParams,
-  Link,
-  useSearchParams,
-} from 'react-router-dom';
+import { useNavigate, Link, useSearchParams } from 'react-router-dom';
 
 import { PokemonService } from '../../services/PokemonService';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
@@ -15,27 +10,26 @@ import { Pagination } from '../../components/Pagination';
 import { DetailsPanel } from '../../components/DetailsPanel';
 import { isServiceError } from '../../utils.ts';
 import { Tooltip } from '../../components/Tooltip';
+import { SelectedFlyout } from '../../components/SelectedFlyout/SelectedFlyout';
 
 const limit = 20;
 
 export const SearchPage = () => {
   const navigate = useNavigate();
-  const params = useParams();
 
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const page = Number(searchParams.get('page')) || 1;
+  const detailsId = searchParams.get('details');
   const term = searchParams.get('term');
 
   const [pokemonService] = useState(new PokemonService());
 
-  const page = Number(params.page ?? 1);
   if (isNaN(page)) {
     navigate('not-found');
   }
 
   const [searchTerm, setSearchTerm] = useLocalStorage<string>('pokeQuery', '');
   const [input, setInput] = useState<string>(searchTerm);
-
-  const detailsId = params.detailsId || '';
 
   const [total, setTotal] = useState(0);
   const [pokemons, setPokemons] = useState<PokemonListItem[]>([]);
@@ -52,13 +46,13 @@ export const SearchPage = () => {
         } else {
           setPokemons(data.results ?? []);
           setTotal(data.count || 0);
+          setError(null);
         }
       })
       .catch(() => setError('Failed to load pokemon list'))
       .finally(() => setLoading(false));
   }, [setPokemons, setLoading, setError, pokemonService, page, term]);
 
-  // Handlers
   const handleChange = (val: string) => {
     setInput(val);
   };
@@ -67,113 +61,115 @@ export const SearchPage = () => {
 
     setSearchTerm(trimmed);
     if (trimmed) {
-      navigate(`/1?term=${input.trim()}`);
+      searchParams.set('term', trimmed);
     } else {
-      navigate('/1');
+      searchParams.delete('term');
     }
+    setSearchParams(searchParams);
   };
 
   const handleSelectDetails = (p: PokemonListItem) => {
-    const trimmed = input.trim();
-    if (trimmed) {
-      navigate(`/${page}/${p.name}?term=${input.trim()}`);
-    } else {
-      navigate(`/${page}/${p.name}`);
-    }
+    searchParams.set('details', p.name);
+    setSearchParams(searchParams);
   };
+
   const handleCloseDetails = () => {
-    const trimmed = input.trim();
-    if (trimmed) {
-      navigate(`/${page}?term=${input.trim()}`);
-    } else {
-      navigate(`/${page}`);
-    }
+    searchParams.delete('details');
+    setSearchParams(searchParams);
   };
 
   const handlePrevPage = () => {
     if (page > 1) {
-      navigate(`/${page - 1}${detailsId ? `/${detailsId}` : ''}`);
+      searchParams.set('page', String(page - 1));
+      setSearchParams(searchParams);
     }
   };
 
   const handleNextPage = () => {
     const maxPage = Math.ceil(total / limit);
     if (page < maxPage) {
-      navigate(`/${page + 1}${detailsId ? `/${detailsId}` : ''}`);
+      searchParams.set('page', String(page + 1));
+      setSearchParams(searchParams);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900">
-      <div className="max-w-5xl mx-auto mt-8 px-4">
-        <div className="flex justify-between mb-6">
-          <h1 className="font-bold text-2xl">Pokémon browser</h1>
-          <Link className="text-blue-700 hover:underline" to="/about">
-            About
-          </Link>
-        </div>
-        <div className="flex items-center justify-between">
-          <SearchBar
-            value={input}
-            onSearch={handleSearch}
-            onChange={handleChange}
-          />
-          <Tooltip text="The search is performed by a complete match of the Pokemon name">
-            <svg
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              className="w-5 h-5 text-gray-400"
+    <>
+      <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-900  dark:text-slate-100">
+        <div className="max-w-5xl mx-auto mt-8 px-4 dark:bg-slate-900">
+          <div className="flex justify-between mb-6">
+            <h1 className="font-bold text-2xl">Pokémon browser</h1>
+            <Link
+              className="text-blue-700 dark:text-white hover:underline"
+              to="/about"
             >
-              <circle
-                cx="10"
-                cy="10"
-                r="9"
-                stroke="currentColor"
-                strokeWidth="2"
-                fill="none"
-              />
-              <text
-                x="10"
-                y="15"
-                textAnchor="middle"
-                fontSize="11"
-                fill="currentColor"
-              >
-                ?
-              </text>
-            </svg>
-          </Tooltip>
-        </div>
-
-        <div className={`flex gap-4 transition-all flex-col md:flex-row`}>
-          <div className={`flex-1`}>
-            <ResultsList
-              pokemons={pokemons}
-              loading={loading}
-              error={error}
-              onSelect={handleSelectDetails}
-              selectedId={detailsId}
+              About
+            </Link>
+          </div>
+          <div className="flex items-center justify-between">
+            <SearchBar
+              value={input}
+              onSearch={handleSearch}
+              onChange={handleChange}
             />
-            {!loading && !error && total / limit > 1 && (
-              <Pagination
-                page={page}
-                total={Math.max(1, Math.ceil(total / limit))}
-                onPrev={handlePrevPage}
-                onNext={handleNextPage}
+            <Tooltip text="The search is performed by a complete match of the Pokemon name">
+              <svg
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                className="w-5 h-5 text-gray-400"
+              >
+                <circle
+                  cx="10"
+                  cy="10"
+                  r="9"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  fill="none"
+                />
+                <text
+                  x="10"
+                  y="15"
+                  textAnchor="middle"
+                  fontSize="11"
+                  fill="currentColor"
+                >
+                  ?
+                </text>
+              </svg>
+            </Tooltip>
+          </div>
+
+          <div className={`flex gap-4 transition-all flex-col md:flex-row`}>
+            <div className={`flex-1`}>
+              <ResultsList
+                pokemons={pokemons}
+                loading={loading}
+                error={error}
+                onSelect={handleSelectDetails}
+                selectedId={detailsId}
               />
+              {!loading && !error && total / limit > 1 && (
+                <Pagination
+                  page={page}
+                  total={Math.max(1, Math.ceil(total / limit))}
+                  onPrev={handlePrevPage}
+                  onNext={handleNextPage}
+                />
+              )}
+            </div>
+            {detailsId && (
+              <div className="flex-1 max-w-xl shadow-md bg-white dark:bg-slate-700 rounded-md border p-3 relative">
+                <DetailsPanel
+                  pokemonService={pokemonService}
+                  detailsId={detailsId}
+                  onClose={handleCloseDetails}
+                />
+              </div>
             )}
           </div>
-          {detailsId && (
-            <div className="flex-1 max-w-xl shadow-md bg-white rounded-md border p-3 relative">
-              <DetailsPanel
-                pokemonService={pokemonService}
-                detailsId={detailsId}
-                onClose={handleCloseDetails}
-              />
-            </div>
-          )}
         </div>
       </div>
-    </div>
+      <SelectedFlyout />
+    </>
   );
 };
