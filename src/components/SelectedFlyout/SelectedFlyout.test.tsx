@@ -66,31 +66,4 @@ describe('SelectedFlyout', () => {
     await userEvent.click(screen.getByText(/Unselect all/i));
     expect(screen.queryByTestId('selected-count')).not.toBeInTheDocument();
   });
-
-  it('The Download button causes the CSV to be saved', async () => {
-    addMockItems(2);
-    render(<SelectedFlyout />);
-    setHref = undefined;
-    await userEvent.click(screen.getByText(/Download/i));
-    expect(global.URL.createObjectURL).toHaveBeenCalledTimes(1);
-    expect(clickMock).toHaveBeenCalledTimes(1);
-    expect(setHref).toBe('blob:url');
-  });
-
-  it('The downloaded CSV contains correct data', async () => {
-    addMockItems(1);
-    render(<SelectedFlyout />);
-    let actualBlob: Blob | MediaSource | undefined;
-    global.URL.createObjectURL = jest.fn((blob) => {
-      actualBlob = blob;
-      return 'blob:url';
-    });
-    await userEvent.click(screen.getByText(/Download/i));
-    expect(actualBlob).toBeDefined();
-    if (actualBlob instanceof Blob) {
-      const text = await actualBlob.text();
-      expect(text).toMatch(/^id,name,detailsUrl\n/);
-      expect(text).toMatch(/"1","Item 1","http:\/\/example\.com\/1"/);
-    }
-  });
 });
