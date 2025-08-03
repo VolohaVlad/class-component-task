@@ -41,7 +41,7 @@ export const ResultsList: React.FC<Props> = ({
               />
             </div>
             <div
-              className="flex-1 items-center border-b last:border-none p-2 cursor-pointer rounded transition font-sans"
+              className="flex items-center border-b last:border-none p-2 cursor-pointer rounded transition font-sans"
               onClick={() => onSelect(p)}
               data-testid="result-item-select"
             >
