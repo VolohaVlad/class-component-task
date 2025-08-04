@@ -1,12 +1,13 @@
 import React from 'react';
 import type { PokemonListItem } from '../../models/PokemonListItem.ts';
+import { Checkbox } from '../Checkbox';
 
 type Props = {
   pokemons: PokemonListItem[];
   loading: boolean;
   error: string | null;
   onSelect: (p: PokemonListItem) => void;
-  selectedId?: string;
+  selectedId?: string | null;
 };
 
 export const ResultsList: React.FC<Props> = ({
@@ -16,7 +17,7 @@ export const ResultsList: React.FC<Props> = ({
   onSelect,
   selectedId,
 }) => (
-  <div className="bg-white rounded p-3 shadow-sm mb-3 min-h-[160px]">
+  <div className="bg-white dark:bg-slate-700 rounded p-3 shadow-sm mb-3 min-h-[160px]">
     {loading && <div data-testid="spinner">Loading…</div>}
     {error && <div className="text-red-500">{error}</div>}
     {!loading && !error && pokemons.length === 0 && <div>No results.</div>}
@@ -31,21 +32,30 @@ export const ResultsList: React.FC<Props> = ({
         return (
           <div
             key={p.name}
-            className={`flex items-center border-b last:border-none p-2 cursor-pointer hover:bg-blue-50 rounded transition font-sans ${selectedId?.toLowerCase() === p.name.toLowerCase() || selectedId === pokeId ? 'bg-blue-100' : ''}`}
-            onClick={() => onSelect(p)}
             data-testid="result-item"
+            className={`flex items-center hover:bg-blue-50 dark:hover:bg-blue-800 ${selectedId?.toLowerCase() === p.name.toLowerCase() || selectedId === pokeId ? 'bg-blue-100 dark:bg-black' : ''}`}
           >
-            <img
-              src={img}
-              alt={p.name}
-              width={36}
-              height={36}
-              className="mr-3"
-            />
-            <div className="capitalize font-semibold">{p.name}</div>
+            <div>
+              <Checkbox
+                item={{ id: p.name, name: p.name, detailsUrl: p.url }}
+              />
+            </div>
+            <div
+              className="flex items-center border-b last:border-none p-2 cursor-pointer rounded transition font-sans"
+              onClick={() => onSelect(p)}
+              data-testid="result-item-select"
+            >
+              <img
+                src={img}
+                alt={p.name}
+                width={36}
+                height={36}
+                className="mr-3"
+              />
+              <div className="capitalize font-semibold">{p.name}</div>
+            </div>
           </div>
         );
       })}
   </div>
 );
-export default ResultsList;

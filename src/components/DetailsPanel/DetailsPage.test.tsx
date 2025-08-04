@@ -39,7 +39,7 @@ describe('DetailsPanel', () => {
   });
 
   it('shows loading on initial render', async () => {
-    mockDetails.mockReturnValue(new Promise(() => {})); // never resolves
+    mockDetails.mockReturnValue(new Promise(() => {}));
     render(
       <DetailsPanel
         detailsId="25"
@@ -61,7 +61,6 @@ describe('DetailsPanel', () => {
       />
     );
 
-    // Ждет покемона по завершении анмаунта
     expect(await screen.findByText(/Name:/)).toBeInTheDocument();
     expect(await screen.findByText(/Pikachu/)).toBeInTheDocument();
     expect((await screen.findByText(/ID:/i)).parentElement).toHaveTextContent(
@@ -79,7 +78,6 @@ describe('DetailsPanel', () => {
     expect(
       (await screen.findByText(/Abilities:/)).parentElement
     ).toHaveTextContent('Static, Lightning-rod');
-    // Проверим картинку
     expect(screen.getByRole('img')).toHaveAttribute(
       'src',
       sampleDetails.sprites.other?.['official-artwork']?.front_default
@@ -161,7 +159,6 @@ describe('DetailsPanel', () => {
       />
     );
 
-    // дожидаемся появления деталей для 26
     await screen.findByText(/raichu/i);
     expect(mockDetails).toHaveBeenCalledWith('26');
   });

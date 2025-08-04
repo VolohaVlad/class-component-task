@@ -1,0 +1,10 @@
+@import 'tailwindcss';
+@config "../tailwind.config.js";
+
+#root {
+  height: 100vh;
+}
+
+html.dark #root {
+  background: var(--color-slate-900);
+}
