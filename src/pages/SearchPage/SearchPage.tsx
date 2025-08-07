@@ -1,16 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { useNavigate, Link, useSearchParams } from 'react-router-dom';
-
-import { PokemonService } from '../../services/PokemonService';
 import { useLocalStorage } from '../../hooks/useLocalStorage';
 import type { PokemonListItem } from '../../models/PokemonListItem';
 import { ResultsList } from '../../components/ResultsList';
 import { SearchBar } from '../../components/SearchBar';
 import { Pagination } from '../../components/Pagination';
 import { DetailsPanel } from '../../components/DetailsPanel';
-import { isServiceError } from '../../utils.ts';
 import { Tooltip } from '../../components/Tooltip';
 import { SelectedFlyout } from '../../components/SelectedFlyout/SelectedFlyout';
+import { useItems } from '../../hooks/useItems.ts';
 
 const limit = 20;
 
@@ -22,8 +20,6 @@ export const SearchPage = () => {
   const detailsId = searchParams.get('details');
   const term = searchParams.get('term');
 
-  const [pokemonService] = useState(new PokemonService());
-
   if (isNaN(page)) {
     navigate('not-found');
   }
@@ -31,27 +27,12 @@ export const SearchPage = () => {
   const [searchTerm, setSearchTerm] = useLocalStorage<string>('pokeQuery', '');
   const [input, setInput] = useState<string>(searchTerm);
 
-  const [total, setTotal] = useState(0);
-  const [pokemons, setPokemons] = useState<PokemonListItem[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, isError, error, refetch, isFetching } = useItems(
+    page,
+    term
+  );
 
-  useEffect(() => {
-    setLoading(true);
-    const res = term ? pokemonService.search(term) : pokemonService.list(page);
-    res
-      .then((data) => {
-        if (isServiceError(data)) {
-          setError(data.message);
-        } else {
-          setPokemons(data.results ?? []);
-          setTotal(data.count || 0);
-          setError(null);
-        }
-      })
-      .catch(() => setError('Failed to load pokemon list'))
-      .finally(() => setLoading(false));
-  }, [setPokemons, setLoading, setError, pokemonService, page, term]);
+  const total = data?.count ?? 0;
 
   const handleChange = (val: string) => {
     setInput(val);
@@ -111,6 +92,8 @@ export const SearchPage = () => {
               value={input}
               onSearch={handleSearch}
               onChange={handleChange}
+              isFetching={isFetching}
+              onRefresh={() => refetch()}
             />
             <Tooltip text="The search is performed by a complete match of the Pokemon name">
               <svg
@@ -142,13 +125,14 @@ export const SearchPage = () => {
           <div className={`flex gap-4 transition-all flex-col md:flex-row`}>
             <div className={`flex-1`}>
               <ResultsList
-                pokemons={pokemons}
-                loading={loading}
+                pokemons={data?.results}
+                loading={isLoading}
+                isError={isError}
                 error={error}
                 onSelect={handleSelectDetails}
                 selectedId={detailsId}
               />
-              {!loading && !error && total / limit > 1 && (
+              {!isLoading && !error && total / limit > 1 && (
                 <Pagination
                   page={page}
                   total={Math.max(1, Math.ceil(total / limit))}
@@ -160,7 +144,6 @@ export const SearchPage = () => {
             {detailsId && (
               <div className="flex-1 max-w-xl shadow-md bg-white dark:bg-slate-700 rounded-md border p-3 relative">
                 <DetailsPanel
-                  pokemonService={pokemonService}
                   detailsId={detailsId}
                   onClose={handleCloseDetails}
                 />
