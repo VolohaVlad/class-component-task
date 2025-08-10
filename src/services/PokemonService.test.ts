@@ -31,10 +31,10 @@ describe('PokemonService', () => {
       });
     });
 
-    it('should return ServiceError on error', async () => {
-      mockedGet.mockRejectedValueOnce(new Error('fail'));
-      const res = await service.list(2, 5);
-      expect(res).toEqual({ message: 'Failed to load list' });
+    it('throws error when list fetch fails', async () => {
+      mockedGet.mockRejectedValueOnce(new Error('Network error'));
+
+      await expect(service.list()).rejects.toThrow('Failed to load list');
     });
   });
 
@@ -59,10 +59,12 @@ describe('PokemonService', () => {
       });
     });
 
-    it('should return ServiceError if not found', async () => {
-      mockedGet.mockRejectedValueOnce(new Error('nope'));
-      const res = await service.search('unknown');
-      expect(res).toEqual({ message: 'Pokemon not found' });
+    it('throws error when Pokémon not found', async () => {
+      mockedGet.mockRejectedValueOnce(new Error('404'));
+
+      await expect(service.search('unknown')).rejects.toThrow(
+        'Pokemon not found'
+      );
     });
 
     it('should use empty string url if sprite is missing', async () => {
@@ -93,10 +95,12 @@ describe('PokemonService', () => {
       expect(res).toEqual({ id: 1, name: 'bulbasaur' });
     });
 
-    it('should return ServiceError on error', async () => {
-      mockedGet.mockRejectedValueOnce(new Error('fail'));
-      const res = await service.details('42');
-      expect(res).toEqual({ message: 'Pokemon not found' });
+    it('throws error when details fetch fails', async () => {
+      mockedGet.mockRejectedValueOnce(new Error('404'));
+
+      await expect(service.details('9999')).rejects.toThrow(
+        'Pokemon not found'
+      );
     });
   });
 });

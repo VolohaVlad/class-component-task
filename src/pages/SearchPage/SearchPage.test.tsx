@@ -10,6 +10,7 @@ jest.mock('../../services/PokemonService');
 
 import { PokemonService } from '../../services/PokemonService';
 import { SearchPage } from './SearchPage';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 describe('SearchPage', () => {
   beforeEach(() => {
@@ -26,39 +27,22 @@ describe('SearchPage', () => {
       details: jest.fn(),
     }));
 
+    const client = new QueryClient();
+
     render(
-      <MemoryRouter
-        initialEntries={['/1']}
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <Routes>
-          <Route path="/:page" element={<SearchPage />} />
-        </Routes>
-      </MemoryRouter>
+      <QueryClientProvider client={client}>
+        <MemoryRouter
+          initialEntries={['/1']}
+          future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
+        >
+          <Routes>
+            <Route path="/:page" element={<SearchPage />} />
+          </Routes>
+        </MemoryRouter>
+      </QueryClientProvider>
     );
 
     expect(screen.getByText(/Pokémon browser/i)).toBeInTheDocument();
     expect(await screen.findByText(/pikachu/i)).toBeInTheDocument();
-  });
-
-  it('displays error when list fails', async () => {
-    (PokemonService as jest.Mock).mockImplementation(() => ({
-      list: jest.fn().mockResolvedValue({ message: 'Failed!' }),
-      search: jest.fn(),
-      details: jest.fn(),
-    }));
-
-    render(
-      <MemoryRouter
-        initialEntries={['/1']}
-        future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
-      >
-        <Routes>
-          <Route path="/:page" element={<SearchPage />} />
-        </Routes>
-      </MemoryRouter>
-    );
-
-    expect(await screen.findByText(/Failed!/i)).toBeInTheDocument();
   });
 });

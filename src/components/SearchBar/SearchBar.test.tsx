@@ -5,7 +5,13 @@ import { SearchBar } from './SearchBar';
 describe('SearchBar', () => {
   it('renders input with given value', () => {
     render(
-      <SearchBar value="Pikachu" onChange={() => {}} onSearch={() => {}} />
+      <SearchBar
+        value="Pikachu"
+        onChange={() => {}}
+        onSearch={() => {}}
+        isFetching={false}
+        onRefresh={() => {}}
+      />
     );
     const input = screen.getByPlaceholderText(
       /search pokemon/i
@@ -15,7 +21,15 @@ describe('SearchBar', () => {
 
   it('calls onChange when typing in the input', () => {
     const handleChange = jest.fn();
-    render(<SearchBar value="" onChange={handleChange} onSearch={() => {}} />);
+    render(
+      <SearchBar
+        value=""
+        onChange={handleChange}
+        onSearch={() => {}}
+        isFetching={false}
+        onRefresh={() => {}}
+      />
+    );
     const input = screen.getByPlaceholderText(/search pokemon/i);
     fireEvent.change(input, { target: { value: 'Charizard' } });
     expect(handleChange).toHaveBeenCalledWith('Charizard');
@@ -23,7 +37,15 @@ describe('SearchBar', () => {
 
   it('calls onSearch when clicking the Search button', () => {
     const handleSearch = jest.fn();
-    render(<SearchBar value="" onChange={() => {}} onSearch={handleSearch} />);
+    render(
+      <SearchBar
+        value=""
+        onChange={() => {}}
+        onSearch={handleSearch}
+        isFetching={false}
+        onRefresh={() => {}}
+      />
+    );
     const button = screen.getByRole('button', { name: /search/i });
     fireEvent.click(button);
     expect(handleSearch).toHaveBeenCalled();
@@ -31,7 +53,15 @@ describe('SearchBar', () => {
 
   it('calls onSearch when pressing Enter in the input', () => {
     const handleSearch = jest.fn();
-    render(<SearchBar value="" onChange={() => {}} onSearch={handleSearch} />);
+    render(
+      <SearchBar
+        value=""
+        onChange={() => {}}
+        onSearch={handleSearch}
+        isFetching={false}
+        onRefresh={() => {}}
+      />
+    );
     const input = screen.getByPlaceholderText(/search pokemon/i);
     fireEvent.keyDown(input, { key: 'Enter', code: 'Enter', charCode: 13 });
     expect(handleSearch).toHaveBeenCalled();

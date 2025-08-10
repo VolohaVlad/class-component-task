@@ -26,7 +26,7 @@ export const DetailsPanel = ({ detailsId, onClose }: Props) => {
         <span>Pokémon details</span>
         <button
           className="text-gray-400 text-xl"
-          title="Close"
+          title="Refresh"
           onClick={() => refetch()}
           disabled={isFetching}
         >
