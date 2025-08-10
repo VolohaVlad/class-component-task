@@ -1,7 +1,6 @@
 import get from 'axios';
 import type { PokemonListResponse } from '../models/PokemonListResponse';
 import type { PokemonDetails } from '../models/PokemonDetails.ts';
-import type { ServiceError } from '../models/ServiceError';
 
 export class PokemonService {
   async list(page: number = 1, limit: number = 20) {
@@ -18,9 +17,7 @@ export class PokemonService {
         count,
       };
     } catch {
-      return {
-        message: 'Failed to load list',
-      } as ServiceError;
+      throw new Error('Failed to load list');
     }
   }
 
@@ -38,9 +35,7 @@ export class PokemonService {
         count: 1,
       };
     } catch {
-      return {
-        message: 'Pokemon not found',
-      } as ServiceError;
+      throw new Error('Pokemon not found');
     }
   }
 
@@ -50,9 +45,7 @@ export class PokemonService {
       const { data } = await get<PokemonDetails>(url);
       return data;
     } catch {
-      return {
-        message: 'Pokemon not found',
-      } as ServiceError;
+      throw new Error('Pokemon not found');
     }
   }
 }

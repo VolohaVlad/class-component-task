@@ -20,6 +20,7 @@ describe('ResultsList', () => {
         pokemons={[]}
         loading={true}
         error={null}
+        isError={false}
         onSelect={onSelect}
       />
     );
@@ -31,7 +32,8 @@ describe('ResultsList', () => {
       <ResultsList
         pokemons={[]}
         loading={false}
-        error="Something wrong"
+        error={new Error('Something wrong')}
+        isError={true}
         onSelect={onSelect}
       />
     );
@@ -44,6 +46,7 @@ describe('ResultsList', () => {
         pokemons={[]}
         loading={false}
         error={null}
+        isError={false}
         onSelect={onSelect}
       />
     );
@@ -56,6 +59,7 @@ describe('ResultsList', () => {
         pokemons={pokemons}
         loading={false}
         error={null}
+        isError={false}
         onSelect={onSelect}
       />
     );
@@ -80,6 +84,7 @@ describe('ResultsList', () => {
         pokemons={pokemons}
         loading={false}
         error={null}
+        isError={false}
         onSelect={onSelect}
       />
     );
@@ -94,6 +99,7 @@ describe('ResultsList', () => {
         pokemons={pokemons}
         loading={false}
         error={null}
+        isError={false}
         onSelect={onSelect}
         selectedId="PIKACHU"
       />
@@ -108,6 +114,7 @@ describe('ResultsList', () => {
         pokemons={pokemons}
         loading={false}
         error={null}
+        isError={false}
         onSelect={onSelect}
         selectedId="25"
       />
@@ -122,6 +129,7 @@ describe('ResultsList', () => {
         pokemons={pokemons}
         loading={false}
         error={null}
+        isError={false}
         onSelect={onSelect}
         selectedId="777"
       />
@@ -140,6 +148,7 @@ describe('ResultsList', () => {
         pokemons={pokemonsWithJpg}
         loading={false}
         error={null}
+        isError={false}
         onSelect={onSelect}
       />
     );

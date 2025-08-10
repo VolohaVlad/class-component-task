@@ -1,165 +1,141 @@
 import '@testing-library/jest-dom';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { DetailsPanel } from './DetailsPanel';
-import type { PokemonService } from '../../services/PokemonService';
-import type { PokemonDetails } from '../../models/PokemonDetails';
+import { useDetailsItem } from '../../hooks/useDetailsItem';
 
-const mockDetails = jest.fn();
-const pokemonService: PokemonService = {
-  details: mockDetails,
-  list: mockDetails,
-  search: mockDetails,
-};
+jest.mock('../../hooks/useDetailsItem');
 
-const onClose = jest.fn();
+const mockedUseDetailsItem = useDetailsItem as jest.Mock;
 
-const sampleDetails: PokemonDetails = {
-  id: 25,
+const mockOnClose = jest.fn();
+const mockRefetch = jest.fn();
+
+const mockData = {
   name: 'pikachu',
-  url: 'pikachu',
-  height: 40,
+  id: 25,
+  height: 4,
   weight: 60,
+  sprites: {
+    other: {
+      'official-artwork': {
+        front_default: 'https://example.com/pikachu.png',
+      },
+    },
+  },
   types: [{ type: { name: 'electric' } }],
   abilities: [
     { ability: { name: 'static' } },
     { ability: { name: 'lightning-rod' } },
   ],
-  sprites: {
-    other: {
-      'official-artwork': {
-        front_default: 'https://pokeapi.co/artwork/pikachu.png',
-      },
-    },
-  },
 };
 
 describe('DetailsPanel', () => {
-  beforeEach(() => {
+  afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('shows loading on initial render', async () => {
-    mockDetails.mockReturnValue(new Promise(() => {}));
-    render(
-      <DetailsPanel
-        detailsId="25"
-        pokemonService={pokemonService}
-        onClose={onClose}
-      />
-    );
-    expect(await screen.findByText(/loading details/i)).toBeInTheDocument();
-  });
-
-  it('fetches and displays details on success', async () => {
-    mockDetails.mockResolvedValueOnce(sampleDetails);
-
-    render(
-      <DetailsPanel
-        detailsId="25"
-        pokemonService={pokemonService}
-        onClose={onClose}
-      />
-    );
-
-    expect(await screen.findByText(/Name:/)).toBeInTheDocument();
-    expect(await screen.findByText(/Pikachu/)).toBeInTheDocument();
-    expect((await screen.findByText(/ID:/i)).parentElement).toHaveTextContent(
-      '25'
-    );
-    expect((await screen.findByText(/Types:/)).parentElement).toHaveTextContent(
-      'Electric'
-    );
-    expect(
-      (await screen.findByText(/Height:/)).parentElement
-    ).toHaveTextContent('4 m');
-    expect(
-      (await screen.findByText(/Weight:/)).parentElement
-    ).toHaveTextContent('6 kg');
-    expect(
-      (await screen.findByText(/Abilities:/)).parentElement
-    ).toHaveTextContent('Static, Lightning-rod');
-    expect(screen.getByRole('img')).toHaveAttribute(
-      'src',
-      sampleDetails.sprites.other?.['official-artwork']?.front_default
-    );
-  });
-
-  it('shows service error', async () => {
-    mockDetails.mockResolvedValueOnce({ message: 'No such pokemon' });
-    render(
-      <DetailsPanel
-        detailsId="999"
-        pokemonService={pokemonService}
-        onClose={onClose}
-      />
-    );
-    expect(await screen.findByText(/no such pokemon/i)).toBeInTheDocument();
-  });
-
-  it('shows catch error (network)', async () => {
-    mockDetails.mockRejectedValueOnce(new Error('Network failed'));
-    render(
-      <DetailsPanel
-        detailsId="25"
-        pokemonService={pokemonService}
-        onClose={onClose}
-      />
-    );
-
-    expect(
-      await screen.findByText(/failed to load pokemon list/i)
-    ).toBeInTheDocument();
-  });
-
-  it('calls onClose on close button', async () => {
-    mockDetails.mockResolvedValueOnce(sampleDetails);
-    render(
-      <DetailsPanel
-        detailsId="25"
-        pokemonService={pokemonService}
-        onClose={onClose}
-      />
-    );
-    fireEvent.click(await screen.findByTitle(/close/i));
-    expect(onClose).toHaveBeenCalled();
-  });
-
-  it('requests details for new id if id changes', async () => {
-    mockDetails.mockResolvedValueOnce(sampleDetails);
-
-    const { rerender } = render(
-      <DetailsPanel
-        detailsId="25"
-        pokemonService={pokemonService}
-        onClose={onClose}
-      />
-    );
-
-    await screen.findByText(/pikachu/i);
-    expect(mockDetails).toHaveBeenCalledWith('25');
-
-    mockDetails.mockResolvedValueOnce({
-      ...sampleDetails,
-      id: 26,
-      name: 'raichu',
-      sprites: {
-        other: {
-          'official-artwork': {
-            front_default: 'https://pokeapi.co/artwork/raichu.png',
-          },
-        },
-      },
+  it('renders loading state', () => {
+    mockedUseDetailsItem.mockReturnValue({
+      data: null,
+      isLoading: true,
+      isError: false,
+      error: null,
+      refetch: mockRefetch,
+      isFetching: false,
     });
 
-    rerender(
-      <DetailsPanel
-        detailsId="26"
-        pokemonService={pokemonService}
-        onClose={onClose}
-      />
-    );
+    render(<DetailsPanel detailsId="25" onClose={mockOnClose} />);
+    expect(screen.getByText(/Loading details.../i)).toBeInTheDocument();
+  });
 
-    await screen.findByText(/raichu/i);
-    expect(mockDetails).toHaveBeenCalledWith('26');
+  it('renders error state', () => {
+    mockedUseDetailsItem.mockReturnValue({
+      data: null,
+      isLoading: false,
+      isError: true,
+      error: { message: 'Failed to fetch' },
+      refetch: mockRefetch,
+      isFetching: false,
+    });
+
+    render(<DetailsPanel detailsId="25" onClose={mockOnClose} />);
+    expect(screen.getByText(/Failed to fetch/i)).toBeInTheDocument();
+  });
+
+  it('renders Pokémon details', async () => {
+    mockedUseDetailsItem.mockReturnValue({
+      data: mockData,
+      isLoading: false,
+      isError: false,
+      error: null,
+      refetch: mockRefetch,
+      isFetching: false,
+    });
+
+    render(<DetailsPanel detailsId="25" onClose={mockOnClose} />);
+
+    expect((await screen.findByText(/Name:/i)).parentElement).toHaveTextContent(
+      /Pikachu/i
+    );
+    expect((await screen.findByText(/ID:/i)).parentElement).toHaveTextContent(
+      'ID: 25'
+    );
+    expect(
+      (await screen.findByText(/Types:/i)).parentElement
+    ).toHaveTextContent('Types: Electric');
+    expect(
+      (await screen.findByText(/Height:/i)).parentElement
+    ).toHaveTextContent('Height: 0.4 m');
+    expect(
+      (await screen.findByText(/Weight:/i)).parentElement
+    ).toHaveTextContent('Weight: 6 kg');
+    expect(
+      (await screen.findByText(/Abilities:/i)).parentElement
+    ).toHaveTextContent('Abilities: Static, Lightning-rod');
+  });
+
+  it('calls onClose when close button is clicked', async () => {
+    mockedUseDetailsItem.mockReturnValue({
+      data: null,
+      isLoading: true,
+      isError: false,
+      error: null,
+      refetch: mockRefetch,
+      isFetching: false,
+    });
+
+    render(<DetailsPanel detailsId="25" onClose={mockOnClose} />);
+    fireEvent.click(await screen.findByTitle('Close'));
+    expect(mockOnClose).toHaveBeenCalled();
+  });
+
+  it('calls refetch when refresh button is clicked', () => {
+    mockedUseDetailsItem.mockReturnValue({
+      data: mockData,
+      isLoading: false,
+      isError: false,
+      error: null,
+      refetch: mockRefetch,
+      isFetching: false,
+    });
+
+    render(<DetailsPanel detailsId="25" onClose={mockOnClose} />);
+    fireEvent.click(screen.getByText('Refresh'));
+    expect(mockRefetch).toHaveBeenCalled();
+  });
+
+  it('disables refresh button when isFetching is true', () => {
+    mockedUseDetailsItem.mockReturnValue({
+      data: mockData,
+      isLoading: false,
+      isError: false,
+      error: null,
+      refetch: mockRefetch,
+      isFetching: true,
+    });
+
+    render(<DetailsPanel detailsId="25" onClose={mockOnClose} />);
+    const refreshButton = screen.getByText('Refreshing...');
+    expect(refreshButton).toBeDisabled();
   });
 });
